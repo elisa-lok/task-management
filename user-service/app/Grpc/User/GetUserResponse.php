@@ -34,6 +34,10 @@ class GetUserResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string updated_at = 5;</code>
      */
     protected $updated_at = '';
+    /**
+     * Generated from protobuf field <code>string message = 6;</code>
+     */
+    protected $message = '';
 
     /**
      * Constructor.
@@ -46,6 +50,7 @@ class GetUserResponse extends \Google\Protobuf\Internal\Message
      *     @type string $email
      *     @type string $created_at
      *     @type string $updated_at
+     *     @type string $message
      * }
      */
     public function __construct($data = NULL) {
@@ -159,6 +164,28 @@ class GetUserResponse extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->updated_at = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string message = 6;</code>
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * Generated from protobuf field <code>string message = 6;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setMessage($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->message = $var;
 
         return $this;
     }

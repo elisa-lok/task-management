@@ -14,6 +14,8 @@ use User\LogoutUserRequest;
 use User\LogoutUserResponse;
 use User\RegisterUserRequest;
 use User\RegisterUserResponse;
+use User\GetUserRequest;
+use User\GetUserResponse;
 
 class UserServiceImpl implements UserService
 {
@@ -101,4 +103,23 @@ class UserServiceImpl implements UserService
         $response->setMessage('Logout successful');
         return $response;
     }
+
+    public function GetUser(GetUserRequest $request): GetUserResponse
+    {
+        $response = new GetUserResponse();
+        $userId   = $request->getUserId();
+
+        $user = User::find($userId);
+        if (! $user) {
+            $response->setMessage('User not found');
+            return $response;
+        }
+
+        $response->setUserId($user->id);
+        $response->setName($user->name);
+        $response->setEmail($user->email);
+        $response->setMessage('User retrieved successfully');
+        return $response;
+    }
+
 }
