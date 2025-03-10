@@ -80,7 +80,7 @@ class UserService
         $request->setUserId($userId);
         list($response, $status) = $this->userServiceClient->GetUser($request)->wait();
 
-        if ($status->code !== 0) { //\Grpc\STATUS_OK
+        if ($status->code !== 0) {
             return [
                 'code'    => 500,
                 'message' => 'Fetch user data error: ' . $status->details,
