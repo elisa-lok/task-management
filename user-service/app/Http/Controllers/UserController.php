@@ -1,22 +1,20 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use ChannelCredentialsTest;
+use Grpc\ChannelCredentials;
 use Illuminate\Http\Request;
-use User\UserServiceClient;
-use User\RegisterUserRequest;
+use User\GetUserRequest;
 use User\LoginUserRequest;
 use User\LogoutUserRequest;
-use User\GetUserRequest;
-use Grpc\ChannelCredentials;
+use User\RegisterUserRequest;
+use User\UserServiceClient;
 
 class UserController extends Controller
 {
     private $client;
 
     public function __construct()
-    { 
+    {
         $this->client = new UserServiceClient('localhost:50051', [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
@@ -34,9 +32,9 @@ class UserController extends Controller
 
         list($response, $status) = $this->client->RegisterUser($grpcRequest)->wait();
         return response()->json([
-            'user_id' => $response->getUserId(),
-            'message' => $response->getMessage(),
-            'error_details' => $response->getErrorDetails()
+            'user_id'       => $response->getUserId(),
+            'message'       => $response->getMessage(),
+            'error_details' => $response->getErrorDetails(),
         ], $status->code);
     }
 
@@ -51,9 +49,9 @@ class UserController extends Controller
 
         list($response, $status) = $this->client->LoginUser($grpcRequest)->wait();
         return response()->json([
-            'user_id' => $response->getUserId(),
-            'message' => $response->getMessage(),
-            'remember_token' => $response->getRememberToken()
+            'user_id'        => $response->getUserId(),
+            'message'        => $response->getMessage(),
+            'remember_token' => $response->getRememberToken(),
         ], $status->code);
     }
 
@@ -79,12 +77,12 @@ class UserController extends Controller
 
         list($response, $status) = $this->client->GetUser($grpcRequest)->wait();
         return response()->json([
-            'user_id' => $response->getUserId(),
-            'name' => $response->getName(),
-            'email' => $response->getEmail(),
+            'user_id'    => $response->getUserId(),
+            'name'       => $response->getName(),
+            'email'      => $response->getEmail(),
             'created_at' => $response->getCreatedAt(),
             'updated_at' => $response->getUpdatedAt(),
-            'message' => $response->getMessage()
+            'message'    => $response->getMessage(),
         ], $status->code);
     }
 }

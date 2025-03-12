@@ -1,5 +1,5 @@
 <?php
-namespace App\Services;
+namespace User;
 
 use User\GetUserRequest;
 use User\LoginUserRequest;
