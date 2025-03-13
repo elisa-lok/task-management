@@ -76,6 +76,15 @@ class UserController extends Controller
         $grpcRequest->setUserId($id);
 
         list($response, $status) = $this->client->GetUser($grpcRequest)->wait();
+
+        if ($status->code !== 0) {
+            return response()->json([
+                'error'   => 'gRPC call failed',
+                'details' => $status->details,
+                'code'    => $status->code,
+            ], 500);
+        }
+
         return response()->json([
             'user_id'    => $response->getUserId(),
             'name'       => $response->getName(),
