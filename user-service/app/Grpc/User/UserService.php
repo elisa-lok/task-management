@@ -1,96 +1,49 @@
 <?php
+
 namespace User;
 
 use User\GetUserRequest;
+use User\GetUserResponse;
 use User\LoginUserRequest;
+use User\LoginUserResponse;
 use User\LogoutUserRequest;
+use User\LogoutUserResponse;
 use User\RegisterUserRequest;
-use User\UserServiceClient;
+use User\RegisterUserResponse;
+use Grpc\ServerContext;
 
-class UserService
+class UserService extends UserServiceServer
 {
-    private $userServiceClient;
-
-    public function __construct(UserServiceClient $userServiceClient)
+    public function RegisterUser(RegisterUserRequest $request, ServerContext $context): RegisterUserResponse
     {
-        $this->userServiceClient = $userServiceClient;
+        $response = new RegisterUserResponse();
+        $response->setUserId(1); 
+        $response->setMessage("User registered successfully");
+        return $response;
     }
 
-    public function registerUser(array $userData): array
+    public function LoginUser(LoginUserRequest $request, ServerContext $context): LoginUserResponse
     {
-        $request = new RegisterUserRequest();
-        $request->setName($userData['name']);
-        $request->setPassword($userData['password']);
-        list($response, $status) = $this->userServiceClient->RegisterUser($request)->wait();
-
-        if ($status->code !== 0) { //\Grpc\STATUS_OK
-            return [
-                'code'    => 500,
-                'message' => 'Register user error: ' . $status->details,
-            ];
-        }
-
-        return [
-            'userId'  => $response->getUserId(),
-            'message' => $response->getMessage(),
-        ];
+        // 实现登录逻辑
+        $response = new LoginUserResponse();
+        $response->setRememberToken("test-token"); 
+        $response->setMessage("User logged in successfully");
+        return $response;
     }
 
-    public function loginUser(array $userData): array
+    public function LogoutUser(LogoutUserRequest $request, ServerContext $context): LogoutUserResponse
     {
-        $request = new LoginUserRequest();
-        $request->setEmail($userData['email']);
-        $request->setPassword($userData['password']);
-        list($response, $status) = $this->userServiceClient->LoginUser($request)->wait();
-
-        if ($status->code !== 0) {
-            return [
-                'code'    => 500,
-                'message' => 'Login error: ' . $status->details,
-            ];
-        }
-
-        return [
-            'token'   => $response->getToken(),
-            'message' => $response->getMessage(),
-        ];
+        $response = new LogoutUserResponse();
+        $response->setMessage("User logged out successfully");
+        return $response;
     }
 
-    public function logoutUser(array $userData): array
+    public function GetUser(GetUserRequest $request, ServerContext $context): GetUserResponse
     {
-        $request = new LogoutUserRequest();
-        $request->setUserId($userData['token']);
-        list($response, $status) = $this->userServiceClient->LogoutUser($request)->wait();
-
-        if ($status->code !== 0) {
-            return [
-                'code'    => 500,
-                'message' => 'Logout error: ' . $status->details,
-            ];
-        }
-
-        return [
-            'message' => $response->getMessage(),
-        ];
-    }
-
-    public function getUser(int $userId): array
-    {
-        $request = new GetUserRequest();
-        $request->setUserId($userId);
-        list($response, $status) = $this->userServiceClient->GetUser($request)->wait();
-
-        if ($status->code !== 0) {
-            return [
-                'code'    => 500,
-                'message' => 'Fetch user data error: ' . $status->details,
-            ];
-        }
-
-        return [
-            'userId'   => $response->getUserId(),
-            'username' => $response->getUsername(),
-            'email'    => $response->getEmail(),
-        ];
+        $response = new GetUserResponse();
+        $response->setUserId($request->getUserId());
+        $response->setName("Elisa"); 
+        $response->setEmail("elisa@example.com"); 
+        return $response;
     }
 }

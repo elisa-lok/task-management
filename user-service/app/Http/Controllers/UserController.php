@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Grpc\ChannelCredentials;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use User\GetUserRequest;
 use User\LoginUserRequest;
 use User\LogoutUserRequest;
@@ -25,17 +26,28 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
+        Log::info('Register user request:', $request->all());
+
         $grpcRequest = new RegisterUserRequest();
         $grpcRequest->setName($request->name);
         $grpcRequest->setEmail($request->email);
         $grpcRequest->setPassword($request->password);
 
-        list($response, $status) = $this->client->RegisterUser($grpcRequest)->wait();
+        $result = $this->callGrpcMethod('RegisterUser', $grpcRequest);
+
+        if (isset($result['error'])) {
+            return response()->json($result, 500);
+        }
+
+        Log::info('Register user response:', [
+            'user_id' => $result->getUserId(),
+            'message' => $result->getMessage(),
+        ]);
+
         return response()->json([
-            'user_id'       => $response->getUserId(),
-            'message'       => $response->getMessage(),
-            'error_details' => $response->getErrorDetails(),
-        ], $status->code);
+            'user_id' => $result->getUserId(),
+            'message' => $result->getMessage(),
+        ]);
     }
 
     /**
@@ -43,16 +55,29 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
+        Log::info('Login user request:', $request->all());
+
         $grpcRequest = new LoginUserRequest();
         $grpcRequest->setEmail($request->email);
         $grpcRequest->setPassword($request->password);
 
-        list($response, $status) = $this->client->LoginUser($grpcRequest)->wait();
+        $result = $this->callGrpcMethod('LoginUser', $grpcRequest);
+
+        if (isset($result['error'])) {
+            return response()->json($result, 500);
+        }
+
+        Log::info('Login user response:', [
+            'user_id' => $result->getUserId(),
+            'message' => $result->getMessage(),
+            'token'   => $result->getRememberToken(),
+        ]);
+
         return response()->json([
-            'user_id'        => $response->getUserId(),
-            'message'        => $response->getMessage(),
-            'remember_token' => $response->getRememberToken(),
-        ], $status->code);
+            'user_id' => $result->getUserId(),
+            'message' => $result->getMessage(),
+            'token'   => $result->getRememberToken(),
+        ]);
     }
 
     /**
@@ -60,11 +85,24 @@ class UserController extends Controller
      */
     public function logout(Request $request)
     {
+        Log::info('Logout user request:', $request->all());
+
         $grpcRequest = new LogoutUserRequest();
         $grpcRequest->setUserId($request->user_id);
 
-        list($response, $status) = $this->client->LogoutUser($grpcRequest)->wait();
-        return response()->json(['message' => $response->getMessage()], $status->code);
+        $result = $this->callGrpcMethod('LogoutUser', $grpcRequest);
+
+        if (isset($result['error'])) {
+            return response()->json($result, 500);
+        }
+
+        Log::info('Logout user response:', [
+            'message' => $result->getMessage(),
+        ]);
+
+        return response()->json([
+            'message' => $result->getMessage(),
+        ]);
     }
 
     /**
@@ -72,26 +110,46 @@ class UserController extends Controller
      */
     public function getUser($id)
     {
+        Log::info('Get user request:', ['user_id' => $id]);
+
         $grpcRequest = new GetUserRequest();
         $grpcRequest->setUserId($id);
 
-        list($response, $status) = $this->client->GetUser($grpcRequest)->wait();
+        $result = $this->callGrpcMethod('GetUser', $grpcRequest);
 
-        if ($status->code !== 0) {
-            return response()->json([
+        if (isset($result['error'])) {
+            return response()->json($result, 500);
+        }
+
+        Log::info('Get user response:', [
+            'user_id' => $result->getUserId(),
+            'name'    => $result->getName(),
+            'email'   => $result->getEmail(),
+        ]);
+
+        return response()->json([
+            'user_id'    => $result->getUserId(),
+            'name'       => $result->getName(),
+            'email'      => $result->getEmail(),
+            'created_at' => $result->getCreatedAt(),
+            'updated_at' => $result->getUpdatedAt(),
+            'message'    => $result->getMessage(),
+        ]);
+    }
+
+    private function callGrpcMethod($method, $request)
+    {
+        list($response, $status) = $this->client->$method($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            return [
                 'error'   => 'gRPC call failed',
                 'details' => $status->details,
                 'code'    => $status->code,
-            ], 500);
+            ];
         }
 
-        return response()->json([
-            'user_id'    => $response->getUserId(),
-            'name'       => $response->getName(),
-            'email'      => $response->getEmail(),
-            'created_at' => $response->getCreatedAt(),
-            'updated_at' => $response->getUpdatedAt(),
-            'message'    => $response->getMessage(),
-        ], $status->code);
+        return $response;
     }
+
 }
