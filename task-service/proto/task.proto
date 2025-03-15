@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package task;
+
+service TaskService {
+  rpc CreateTask(CreateTaskRequest) returns (Task) {}
+  rpc GetTask(GetTaskRequest) returns (Task) {}
+  rpc UpdateTaskStatus(UpdateTaskStatusRequest) returns (Task) {}
+  rpc ListUserTasks(ListUserTasksRequest) returns (ListUserTasksResponse) {}
+  rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse) {}
+}
+
+message Task {
+  int32 id = 1;
+  int32 user_id = 2;
+  string title = 3;
+  string description = 4;
+  enum TaskStatus {
+    PENDING = 0;
+    IN_PROGRESS = 1;
+    COMPLETED = 2;
+  }
+  TaskStatus status = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
+
+message CreateTaskRequest {
+  int32 user_id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message GetTaskRequest {
+  int32 task_id = 1;
+}
+
+message UpdateTaskStatusRequest {
+  int32 task_id = 1;
+  Task.TaskStatus status = 2;
+}
+
+message ListUserTasksRequest {
+  int32 user_id = 1;
+}
+
+message ListUserTasksResponse {
+  repeated Task tasks = 1;
+}
+
+message DeleteTaskRequest {
+  int32 task_id = 1;
+}
+
+message DeleteTaskResponse {
+  bool success = 1;
+}
