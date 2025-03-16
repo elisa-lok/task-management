@@ -35,6 +35,7 @@ message LoginUserResponse {
 
 message LogoutUserRequest {
   string user_id = 1;
+  string remember_token = 2;
 }
 
 message LogoutUserResponse {

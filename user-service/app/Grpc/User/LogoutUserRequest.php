@@ -18,6 +18,10 @@ class LogoutUserRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string user_id = 1;</code>
      */
     protected $user_id = '';
+    /**
+     * Generated from protobuf field <code>string remember_token = 2;</code>
+     */
+    protected $remember_token = '';
 
     /**
      * Constructor.
@@ -26,6 +30,7 @@ class LogoutUserRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $user_id
+     *     @type string $remember_token
      * }
      */
     public function __construct($data = NULL) {
@@ -51,6 +56,28 @@ class LogoutUserRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->user_id = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string remember_token = 2;</code>
+     * @return string
+     */
+    public function getRememberToken()
+    {
+        return $this->remember_token;
+    }
+
+    /**
+     * Generated from protobuf field <code>string remember_token = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setRememberToken($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->remember_token = $var;
 
         return $this;
     }
