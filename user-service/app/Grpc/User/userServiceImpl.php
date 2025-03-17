@@ -14,7 +14,7 @@ use User\LogoutUserResponse;
 use User\RegisterUserRequest;
 use User\RegisterUserResponse;
 
-class UserService extends UserServiceServer
+class UserServiceImpl extends UserServiceStub
 {
     public function RegisterUser(RegisterUserRequest $request, ServerContext $context): RegisterUserResponse
     {

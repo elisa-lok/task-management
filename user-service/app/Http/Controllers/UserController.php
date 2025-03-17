@@ -16,7 +16,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->client = new UserServiceClient('localhost:50051', [
+        $this->client = new UserServiceClient('127.0.0.1:50051', [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }
@@ -139,6 +139,7 @@ class UserController extends Controller
 
     private function callGrpcMethod($method, $request)
     {
+        var_dump($this->client);
         list($response, $status) = $this->client->$method($request)->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
