@@ -139,8 +139,9 @@ class UserController extends Controller
 
     private function callGrpcMethod($method, $request)
     {
-        var_dump($this->client);
         list($response, $status) = $this->client->$method($request)->wait();
+        print_r($status);
+        exit;
 
         if ($status->code !== \Grpc\STATUS_OK) {
             return [

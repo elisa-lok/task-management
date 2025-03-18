@@ -37,66 +37,32 @@ function generateMethodMap($serviceImpl, $serviceNamespace, $serviceName)
     return $map;
 }
 
-// Create gRPC server
-$server = new Server();
-$server->addHttp2Port('0.0.0.0:50051');
+try {
+    // Create gRPC server
+    $server = new Server();
+    $server->addHttp2Port('0.0.0.0:50051');
 
-// Create service implementation instance
-$serviceImpl = new UserServiceImpl();
+    // Create service implementation instance
+    $serviceImpl = new UserServiceImpl();
 
-// Generate method mapping table automatically
-$methodMap = generateMethodMap($serviceImpl, 'user', 'UserService');
+    // Generate method mapping table automatically
+    $methodMap = generateMethodMap($serviceImpl, 'user', 'UserService');
 
-// Log available methods
-echo "Server starting with the following mapped methods:\n";
-foreach ($methodMap as $fullMethod => $implMethod) {
-    echo "- $fullMethod => $implMethod()\n";
-}
-
-// Start the server
-$server->start();
-echo "gRPC PHP Server started at 0.0.0.0:50051\n";
-
-// Request handling loop
-while (true) {
-    try {
-        // Wait for incoming request
-        $request = $server->requestCall();
-
-        if ($request) {
-            $method = $request->method ?? '';
-            echo "Received call for method: " . $method . "\n";
-
-            // Check if method exists in our mapping
-            if (isset($methodMap[$method])) {
-                $handlerMethod = $methodMap[$method];
-
-                try {
-                    // Call the appropriate method on the service implementation
-                    // Note: The exact parameters may need adjustment based on your actual request structure
-                    $result = $serviceImpl->$handlerMethod($request->decoded, $request->context);
-
-                    // Send response
-                    // Note: The exact response handling will depend on your gRPC PHP version
-                    $request->context->send($result);
-
-                    echo "Successfully processed method: $method\n";
-                } catch (\Exception $e) {
-                    echo "Error in method handler: " . $e->getMessage() . "\n";
-                    // Send error response if possible
-                    if (method_exists($request->context, 'sendError')) {
-                        $request->context->sendError($e->getCode(), $e->getMessage());
-                    }
-                }
-            } else {
-                echo "Unknown method: " . $method . "\n";
-                // Handle unknown method
-                if (method_exists($request->context, 'sendError')) {
-                    $request->context->sendError(4, 'Unknown method');
-                }
-            }
-        }
-    } catch (\Exception $e) {
-        echo "Error processing request: " . $e->getMessage() . "\n";
+    // Log available methods
+    echo "Server starting with the following mapped methods:\n";
+    foreach ($methodMap as $fullMethod => $implMethod) {
+        echo "- $fullMethod => $implMethod()\n";
     }
+
+    // Start the server
+    $server->start();
+    echo "gRPC PHP Server started at 0.0.0.0:50051\n";
+} catch (\Grpc\Exception\ServerException $e) {
+    echo "gRPC Server Exception: " . $e->getMessage() . "\n";
+    echo "Details: " . $e->getDetails() . "\n";
+    echo "Code: " . $e->getCode() . "\n";
+    exit(1);
+} catch (\Exception $e) {
+    echo "Error starting gRPC server: " . $e->getMessage() . "\n";
+    exit(1);
 }
